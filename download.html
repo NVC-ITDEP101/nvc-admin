@@ -169,8 +169,8 @@
         // Logic to update the settings table (where id=1 holds the event name)
         const { error } = await _supabase
             .from('settings')
-            .update({ event_name: newEvent })
-            .eq('id', 1);
+            .update({current_event: newEvent })
+            .eq('id', value);
 
         if (error) {
             console.error(error);
@@ -208,6 +208,7 @@
 </script>
 </body>
 </html>
+
 
 
 
