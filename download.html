@@ -162,20 +162,23 @@
 
 
     
-   async function updateEvent() {
+  async function updateEvent() {
     const newEvent = document.getElementById('event-input').value;
     if(!newEvent) return alert("Please enter an event name");
 
-    // UPDATED: Using 'event_name' as requested
-    const { error } = await _supabase
+    // The 'count' option tells us if a row was actually changed
+    const { error, count } = await _supabase
         .from('settings')
-        .update({ event_name : newEvent }) 
-        .eq('id', 1);
+        .update({ event_name: newEvent }) 
+        .eq('id', 1)
+        .select(); // Adding select() helps confirm the data was written
 
     if (error) {
         alert("Error: " + error.message);
+    } else if (count === 0) {
+        alert("Error: No row found with ID 1. Please create a row in Supabase first!");
     } else {
-        alert("Event updated successfully!");
+        alert("Event updated successfully in the database!");
         document.getElementById('event-input').value = "";
     }
 }
@@ -214,6 +217,7 @@ async function downloadExcel() {
 </script>
 </body>
 </html>
+
 
 
 
