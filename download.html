@@ -2,203 +2,59 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NVC Admin - Attendance</title>
+    <title>NVC Admin - Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    
     <style>
-        * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
-        
-        body { 
-            margin: 0; 
-            background: linear-gradient(135deg, #1f1f1f, #0a6a7c, #000000); 
-            background-attachment: fixed;
-            color: white; 
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        .main-layout { display: flex; height: 100vh; }
-
-        /* Sidebar Navigation */
-        nav { 
-            width: 20%; 
-            background-color: rgba(0, 0, 0, 0.4); 
-            backdrop-filter: blur(15px);
-            height: 100%; 
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .logo { text-align: center; padding: 40px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
-        .logo h1 { font-size: 1.5rem; letter-spacing: 2px; color: #00d4ff; }
-
-        nav a { 
-            display: block; 
-            text-decoration: none; 
-            padding: 20px 30px; 
-            color: rgba(255, 255, 255, 0.7); 
-            transition: 0.3s; 
-            font-size: 0.9rem;
-            border-left: 3px solid transparent;
-        }
-        
-        nav a:hover, .active { 
-            background-color: rgba(0, 212, 255, 0.1); 
-            color: #00d4ff;
-            border-left: 3px solid #00d4ff;
-        }
-
-        /* Content Area */
-        .content-area { 
-            width: 80%; 
-            padding: 60px; 
-            overflow-y: auto; 
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-        }
-
-        /* Glass Cards */
-        .glass-card { 
-            background: rgba(255, 255, 255, 0.05); 
-            backdrop-filter: blur(20px);
-            padding: 40px; 
-            border-radius: 20px; 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-        }
-
-        h2, h1 { margin-top: 0; font-weight: 300; }
-
-        /* Form Elements */
-        .input-group {
-            display: flex;
-            gap: 15px;
-            margin-top: 20px;
-            justify-content: center;
-        }
-
-        input[type="text"] {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 15px;
-            border-radius: 10px;
-            color: white;
-            width: 100%;
-            max-width: 400px;
-            outline: none;
-            transition: 0.3s;
-        }
-
-        input[type="text"]:focus {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: #00d4ff;
-        }
-
-        .btn { 
-            background: #00d4ff; 
-            color: #002b36; 
-            padding: 15px 35px; 
-            border-radius: 10px; 
-            text-decoration: none; 
-            font-weight: bold; 
-            border: none;
-            cursor: pointer;
-            transition: 0.3s ease;
-            display: inline-block;
-        }
-
-        .btn:hover { 
-            background: white; 
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            margin-top: 20px;
-        }
-
-        p { color: rgba(255, 255, 255, 0.6); line-height: 1.6; }
+        body { margin: 0; background: linear-gradient(135deg, #1f1f1f, #0a6a7c, #000000); color: white; font-family: sans-serif; height: 100vh; display: flex; }
+        nav { width: 20%; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); padding-top: 20px; border-right: 1px solid rgba(255,255,255,0.1); }
+        nav a { display: block; padding: 20px; color: white; text-decoration: none; transition: 0.3s; }
+        nav a:hover, .active { background: #00d4ff; color: black; }
+        .content { width: 80%; padding: 50px; }
+        .card { background: rgba(255,255,255,0.05); padding: 40px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
+        input { padding: 12px; border-radius: 8px; border: none; width: 60%; background: rgba(255,255,255,0.1); color: white; outline: none; }
+        .btn { background: #00d4ff; color: black; padding: 12px 25px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; }
+        .btn-green { background: #28a745; color: white; margin-top: 15px; }
     </style>
 </head>
 <body>
-    <div class="main-layout">
-        <nav>
-            <div class="logo"><h1>NVC ADMIN</h1></div>
-            <a href="index.html">News and Updates</a>
-            <a href="members.html">Members</a>
-            <a href="gallery.html">Gallery</a> 
-            <a href="download.html">Attendance</a> 
-            <a href="#">Logout</a>
-        </nav>
-        
-        <div class="content-area">
-            <div class="glass-card">
-                <h2>Manage Current Event</h2>
-                <p>Changing this name will instantly update the title on the registration form.</p>
-                <div class="input-group">
-                    <input type="text" id="event-input" placeholder="e.g. Annual Tech Meet 2024">
-                    <button onclick="updateEvent()" class="btn">Save Event</button>
-                </div>
-            </div>
-
-            <div class="glass-card">
-                <h1>Attendance Records</h1>
-                <p>Generate a professional Excel report of all students who have registered through the portal.</p>
-                <button onclick="downloadExcel()" class="btn btn-secondary">
-                    Download .XLSX Sheet
-                </button>
-            </div>
+    <nav>
+        <h2 style="text-align: center;">NVC ADMIN</h2>
+        <a href="index.html">View Form</a>
+        <a href="download.html" class="active">Attendance</a>
+        <a href="#">Logout</a>
+    </nav>
+    <div class="content">
+        <div class="card">
+            <h2>Change Current Event</h2>
+            <input type="text" id="event-input" placeholder="Enter New Event Name">
+            <button onclick="updateEvent()" class="btn">Update Event</button>
+        </div>
+        <div class="card">
+            <h2>Records Management</h2>
+            <p>Download the full attendance list as an Excel sheet.</p>
+            <button onclick="downloadExcel()" class="btn btn-green">Download Excel (.xlsx)</button>
         </div>
     </div>
 
-<script>
-    // 1. Initialize Supabase (Replace with your keys)
-    const _supabase = supabase.createClient('YOUR_SUPABASE_URL', 'YOUR_SUPABASE_ANON_KEY');
+    <script>
+        const _supabase = supabase.createClient('YOUR_SUPABASE_URL', 'YOUR_SUPABASE_ANON_KEY');
 
-    // 2. Update Event Function
-    async function updateEvent() {
-        const newEvent = document.getElementById('event-input').value;
-        if(!newEvent) return alert("Please enter an event name");
-
-        // Logic to update the settings table (where id=1 holds the event name)
-        const { error } = await _supabase
-            .from('settings')
-            .update({ current_event: newEvent })
-            .eq('id', 1);
-
-        if (error) {
-            console.error(error);
-            alert("Error updating event.");
-        } else {
-            alert("Event updated successfully!");
-            document.getElementById('event-input').value = "";
+        async function updateEvent() {
+            const newName = document.getElementById('event-input').value;
+            if(!newName) return alert("Enter a name");
+            const { error } = await _supabase.from('settings').update({ current_event: newName }).eq('id', 1);
+            if (!error) alert("Event successfully changed to: " + newName);
         }
-    }
 
-    // 3. Download Excel Function
-   async function downloadExcel() {
-    // 1. Fetch the data from your Supabase 'attendance' table
-    const { data, error } = await _supabase.from('attendance').select('*');
-
-    if (error) {
-        alert("Error fetching data: " + error.message);
-        return;
-    }
-
-    // 2. Convert that data into a format Excel understands
-    const worksheet = XLSX.utils.json_to_sheet(data);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance");
-
-    // 3. Tell the browser to download the file
-    XLSX.writeFile(workbook, "NVC_Attendance_Report.xlsx");
-}
-</script>
+        async function downloadExcel() {
+            const { data, error } = await _supabase.from('attendance').select('*');
+            if (error) return alert("Error fetching data");
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Attendance");
+            XLSX.writeFile(wb, "NVC_Attendance.xlsx");
+        }
+    </script>
 </body>
-
 </html>
-
