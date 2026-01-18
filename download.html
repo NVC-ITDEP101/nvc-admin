@@ -169,8 +169,8 @@
         // Logic to update the settings table (where id=1 holds the event name)
         const { error } = await _supabase
             .from('settings')
-            .update({current_event: newEvent })
-            .eq('id', value);
+            .update({EventName: newEvent })
+            .eq('id', 1);
 
         if (error) {
             console.error(error);
@@ -185,7 +185,7 @@
    async function downloadExcel() {
     const { data, error } = await _supabase
         .from('attendance')
-        .select('student_name, id, event_name, date, position');
+        .select('StudentName, StudentID, Position, EventName, Date ');
 
     if (error || !data) return alert("Error fetching data");
     if (data.length === 0) return alert("No records found.");
@@ -214,6 +214,7 @@
 </script>
 </body>
 </html>
+
 
 
 
