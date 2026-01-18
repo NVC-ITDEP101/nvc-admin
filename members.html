@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Manage Members</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; font-family: sans-serif; }
+        body { margin: 0; background: linear-gradient(rgb(31, 31, 31), rgb(10 106 124), #000000); color: white; }
+        
+        .main-layout { display: flex; height: 100vh; }
+
+        /* Sidebar - matches your dashboard style */
+        nav { width: 20%; background-color: rgba(0, 0, 0, 0.6); height: 100%; }
+        .logo { text-align: center; padding: 20px 0; text-transform: uppercase; }
+        nav a { display: block; text-decoration: none; padding: 20px 30px; color: white; transition: 0.3s; }
+        nav a:hover, .active { background-color: #006979; border-radius: 5px; }
+
+        /* Content Area */
+        .content-area { width: 80%; padding: 40px; overflow-y: auto; }
+        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        
+       .add-btn {
+            background-color: #00b4d8;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            
+            font-size: 20px;
+            transition: 0.3s;
+        }
+
+        /* Member Grid */
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+        .member-card { background: rgba(255, 255, 255, 0.1); border-radius: 10px; padding: 15px; text-align: center; border: 1px solid rgba(255,255,255,0.1); transition: 0.3s; }
+        .member-card:hover { transform: translateY(-5px); background: rgba(255, 255, 255, 0.2); }
+        
+        .member-img { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; background: #333; }
+        .controls { margin-top: 10px; display: flex; justify-content: center; gap: 10px; }
+        .btn-edit { color: #00d1ff; cursor: pointer; background: none; border: none; }
+        .btn-delete { color: #ff4d4d; cursor: pointer; background: none; border: none; }
+
+        /* Simple Modal */
+        #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; }
+        .modal-box {  background: #1a1a1a;
+            padding: 40px;
+            border-radius: 15px;
+            width: 450px;
+            border: 1px solid #006979; }
+        input, select { width: 100%; padding: 10px; margin: 10px 0; background: #333; border: 1px solid #444; color: white; }
+    </style>
+</head>
+<body>
+    <div class="main-layout">
+        <nav>
+            <div class="logo"><h1>NVC ADMIN</h1></div>
+            <a href="index.html">News and Updates</a>
+            <a href="members.html" >Members</a>
+            <a href="gallery.html">Gallery</a> 
+            <a href="download.html">Attendance</a> 
+            <a href="#">Logout</a>
+        </nav>
+        
+        <div class="content-area">
+            <div class="header-flex">
+                <h2>Manage Members</h2>
+                <button class="add-btn" onclick="openModal()">+ Add Member</button>
+            </div>
+
+            <div class="gallery-grid">
+                <div class="member-card">
+                    <img src="member1.jpg" class="member-img" alt="Member">
+                    <h4>John Doe</h4>
+                    <p style="font-size: 14px; color: #ccc;">President</p>
+                    <div class="controls">
+                        <button class="btn-edit" onclick="openModal()"><i class="fas fa-edit"></i> Edit</button>
+                        <button class="btn-delete"><i class="fas fa-trash"></i> Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal">
+        <div class="modal-box">
+            <h3>Member Details</h3>
+            <input type="text" placeholder="Full Name">
+            <input type="text" placeholder="Position (e.g. Secretary)">
+            <label>Upload Photo</label>
+            <input type="file">
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button class="add-btn" style="flex:1" onclick="closeModal()">Save</button>
+                <button class="add-btn" style="flex:1; background:#444" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openModal() { document.getElementById('modal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('modal').style.display = 'none'; }
+    </script>
+</body>
+</html>
