@@ -185,7 +185,7 @@
     async function downloadExcel() {
         const { data, error } = await _supabase
             .from('attendance')
-            .select('student_name, id, event_name, created_at , date, position');
+            .select('student_name, id, event_name, date, position');
 
         if (error) {
             alert("Error fetching data");
@@ -208,6 +208,7 @@
 </script>
 </body>
 </html>
+
 
 
 
