@@ -183,15 +183,15 @@
 
     // 3. Download Excel Function
    async function downloadExcel() {
-    const { Date, error } = await _supabase
+    const { date, error } = await _supabase
         .from('attendance')
-        .select('StudentName, StudentID, Position, EventName, Date ');
+        .select('student_name, student_id, position, event_name, date ');
 
-    if (error || !Date) return alert("Error fetching data");
-    if (Date.length === 0) return alert("No records found.");
+    if (error || !date) return alert("Error fetching data");
+    if (date.length === 0) return alert("No records found.");
 
     // 1. Create the worksheet from JSON
-    const worksheet = XLSX.utils.json_to_sheet(Data);
+    const worksheet = XLSX.utils.json_to_sheet(data);
 
     // 2. SET COLUMN WIDTHS (The new part)
     // wch = "Width in Characters"
@@ -214,6 +214,7 @@
 </script>
 </body>
 </html>
+
 
 
 
