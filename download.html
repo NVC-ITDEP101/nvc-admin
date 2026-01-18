@@ -180,30 +180,25 @@
     }
 
     // 3. Download Excel Function
-    async function downloadExcel() {
-        const { data, error } = await _supabase
-            .from('attendance')
-            .select('student_name, student_id, event_name, created_at');
+   async function downloadExcel() {
+    // 1. Fetch the data from your Supabase 'attendance' table
+    const { data, error } = await _supabase.from('attendance').select('*');
 
-        if (error) {
-            alert("Error fetching data");
-            return;
-        }
-
-        if (data.length === 0) {
-            alert("No records found to download.");
-            return;
-        }
-
-        // Use SheetJS to create the file
-        const worksheet = XLSX.utils.json_to_sheet(data);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance");
-        
-        // Triggers the download
-        XLSX.writeFile(workbook, "NVC_Attendance_Report.xlsx");
+    if (error) {
+        alert("Error fetching data: " + error.message);
+        return;
     }
+
+    // 2. Convert that data into a format Excel understands
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance");
+
+    // 3. Tell the browser to download the file
+    XLSX.writeFile(workbook, "NVC_Attendance_Report.xlsx");
+}
 </script>
 </body>
 
 </html>
+
