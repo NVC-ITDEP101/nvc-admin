@@ -139,7 +139,7 @@
                 <h2>Manage Current Event</h2>
                 <p>Changing this name will instantly update the title on the registration form.</p>
                 <div class="input-group">
-                    <input type="text" id="event-input" placeholder="e.g. Annual Tech Meet 2024">
+                    <input type="text" id="event-input" placeholder=" Siyapathsiya Udanaya 2026">
                     <button onclick="updateEvent()" class="btn">Save Event</button>
                 </div>
             </div>
@@ -169,7 +169,7 @@
     // UPDATED: Using 'event_name' as requested
     const { error } = await _supabase
         .from('settings')
-        .update({ current_event: newEvent }) 
+        .update({ event_name: newEvent }) 
         .eq('id', 1);
 
     if (error) {
@@ -214,6 +214,7 @@ async function downloadExcel() {
 </script>
 </body>
 </html>
+
 
 
 
