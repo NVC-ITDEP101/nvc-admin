@@ -182,32 +182,39 @@
     }
 
     // 3. Download Excel Function
-    async function downloadExcel() {
-        const { data, error } = await _supabase
-            .from('attendance')
-            .select('student_name, id, event_name, date, position');
+   async function downloadExcel() {
+    const { data, error } = await _supabase
+        .from('attendance')
+        .select('student_name, id, event_name, date, position');
 
-        if (error) {
-            alert("Error fetching data");
-            return;
-        }
+    if (error || !data) return alert("Error fetching data");
+    if (data.length === 0) return alert("No records found.");
 
-        if (data.length === 0) {
-            alert("No records found to download.");
-            return;
-        }
+    // 1. Create the worksheet from JSON
+    const worksheet = XLSX.utils.json_to_sheet(data);
 
-        // Use SheetJS to create the file
-        const worksheet = XLSX.utils.json_to_sheet(data);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance");
-        
-        // Triggers the download
-        XLSX.writeFile(workbook, "NVC_Attendance_Report.xlsx");
-    }
+    // 2. SET COLUMN WIDTHS (The new part)
+    // wch = "Width in Characters"
+    const colWidths = [
+        { wch: 25 }, // student_name column width
+        { wch: 10 }, // id column width
+        { wch: 30 }, // event_name column width
+        { wch: 15 }, // date column width
+        { wch: 20 }  // position column width
+    ];
+    worksheet['!cols'] = colWidths;
+
+    // 3. Create the workbook and append the sheet
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance");
+
+    // 4. Trigger download
+    XLSX.writeFile(workbook, "NVC_Attendance_Report.xlsx");
+}
 </script>
 </body>
 </html>
+
 
 
 
