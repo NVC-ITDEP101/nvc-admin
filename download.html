@@ -183,15 +183,15 @@
 
     // 3. Download Excel Function
    async function downloadExcel() {
-    const { data, error } = await _supabase
+    const { Date, error } = await _supabase
         .from('attendance')
         .select('StudentName, StudentID, Position, EventName, Date ');
 
-    if (error || !data) return alert("Error fetching data");
-    if (data.length === 0) return alert("No records found.");
+    if (error || !Date) return alert("Error fetching data");
+    if (Date.length === 0) return alert("No records found.");
 
     // 1. Create the worksheet from JSON
-    const worksheet = XLSX.utils.json_to_sheet(data);
+    const worksheet = XLSX.utils.json_to_sheet(Data);
 
     // 2. SET COLUMN WIDTHS (The new part)
     // wch = "Width in Characters"
@@ -209,11 +209,12 @@
     XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance");
 
     // 4. Trigger download
-    XLSX.writeFile(workbook, "NVC_Attendance_Report.xlsx");
+    XLSX.writeFile(workbook, "NVC Attendance Report.xlsx");
 }
 </script>
 </body>
 </html>
+
 
 
 
