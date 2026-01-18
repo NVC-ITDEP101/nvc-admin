@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Attendance</title>
+    <style>
+         * { box-sizing: border-box; font-family: sans-serif; }
+        body { margin: 0; background: linear-gradient(rgb(31, 31, 31), rgb(10 106 124), #000000); color: white; }
+        .main-layout { display: flex; height: 100vh; }
+        nav { width: 20%; background-color: rgba(0, 0, 0, 0.6); height: 100%; }
+        .logo { text-align: center; padding: 20px 0; }
+        nav a { display: block; text-decoration: none; padding: 20px 30px; color: white; transition: 0.3s; }
+        nav a:hover, .active { background-color: #006979; }
+
+        .content-area { width: 80%; padding: 40px; overflow-y: auto; }
+     
+
+
+
+       
+        .glass-card { background: rgba(23, 23, 23, 0.8); backdrop-filter: blur(10px);
+           
+            padding: 50px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); text-align: center; }
+        .btn { background: #00d4ff; color: black; padding: 15px 30px; border-radius: 10px; text-decoration: none; font-weight: bold; display: inline-block; transition: 0.3s; }
+        .btn:hover { background: white; transform: scale(1.05); }
+    </style>
+</head>
+<body>
+    <div class="main-layout">
+        <nav>
+            <div class="logo"><h1>NVC ADMIN</h1></div>
+            <a href="index.html">News and Updates</a>
+            <a href="members.html" >Members</a>
+            <a href="gallery.html">Gallery</a> 
+            <a href="download.html">Attendance</a> 
+            <a href="#">Logout</a>
+        </nav>
+        
+        
+        <div class="content-area">
+            
+            <div class="glass-card" style="margin-bottom: 20px;">
+                <h2>Manage Event</h2>
+                <input type="text" id="event-input" placeholder="Enter Event Name" style="padding: 10px; border-radius: 5px; border: none; width: 60%;">
+                <button onclick="updateEvent()" class="btn" style="padding: 10px 20px; margin-left: 10px;">Save Event</button>
+            </div>
+            <div class="glass-card">
+                <h1>Attendance Management</h1>
+                <p>Click below to generate and download the latest Excel sheet.</p>
+                <br>
+                <a href="http://localhost:3000/download-excel" class="btn">Download Current Records</a>
+            </div>
+        </div>
+    </div>
+
+<script>
+    function updateEvent() {
+    const newEvent = document.getElementById('event-input').value; // Get text from box
+    if(!newEvent) return alert("Please enter an event name");
+
+    fetch('http://localhost:3000/update-event', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        // ERROR WAS HERE: key must be 'newEvent' to match server.js
+        body: JSON.stringify({ newEvent: newEvent }) 
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert("Event updated successfully!");
+        document.getElementById('event-input').value = ""; // Clear box
+    })
+    .catch(err => alert("Error updating event"));
+}
+</script>
+   
+</body>
+</html>
