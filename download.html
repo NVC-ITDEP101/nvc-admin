@@ -170,7 +170,7 @@
     const { error } = await _supabase
         .from('settings')
         .update({ event_name : newEvent }) 
-        .eq('id', 'event_name');
+        .eq('id', 1);
 
     if (error) {
         alert("Error: " + error.message);
@@ -214,6 +214,7 @@ async function downloadExcel() {
 </script>
 </body>
 </html>
+
 
 
 
