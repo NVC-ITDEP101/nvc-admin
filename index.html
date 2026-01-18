@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>News & Updates</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Reusing your CSS logic for consistency */
+        * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+       body { 
+            margin: 0; 
+            background: linear-gradient(135deg, #1f1f1f, #0a6a7c, #000000); 
+            background-attachment: fixed;
+            color: white; 
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .main-layout { display: flex; height: 100vh; }
+
+        /* Sidebar Navigation */
+        nav { 
+            width: 20%; 
+            background-color: rgba(0, 0, 0, 0.4); 
+            backdrop-filter: blur(15px);
+            height: 100%; 
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .logo { text-align: center; padding: 40px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .logo h1 { font-size: 1.5rem; letter-spacing: 2px; color: #00d4ff; }
+
+        nav a { 
+            display: block; 
+            text-decoration: none; 
+            padding: 20px 30px; 
+            color: rgba(255, 255, 255, 0.7); 
+            transition: 0.3s; 
+            font-size: 0.9rem;
+            border-left: 3px solid transparent;
+        }
+        
+        nav a:hover, .active { 
+            background-color: rgba(0, 212, 255, 0.1); 
+            color: #00d4ff;
+            border-left: 3px solid #00d4ff;
+        }
+
+        .content-area { width: 80%; padding: 40px; overflow-y: auto; }
+        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+       .add-btn {
+            background-color: #00b4d8;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            
+            font-size: 20px;
+            transition: 0.3s;
+        }
+         h2, h1 { margin-top: 0; font-weight: 300; }
+
+        /* News Cards */
+        .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 25px; }
+        .news-item { background: rgba(0,0,0,0.4); border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
+        .news-item img { width: 100%; height: 150px; object-fit: cover; }
+        .news-text { padding: 15px; }
+        .news-actions { padding: 15px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; }
+        
+        #newsModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; }
+        .modal-box { background: #1a1a1a;
+            padding: 40px;
+            border-radius: 15px;
+            width: 450px;
+            border: 1px solid #006979;    }
+        textarea { width: 100%; background: #333; color: white; border: 1px solid #444; padding: 10px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="main-layout">
+        <nav>
+           <div class="logo"><h1>NVC ADMIN</h1></div>
+            <a href="index.html">News and Updates</a>
+            <a href="members.html" >Members</a>
+            <a href="gallery.html">Gallery</a> 
+            <a href="download.html">Attendance</a> 
+            <a href="#">Logout</a>
+        </nav>
+        
+        
+        <div class="content-area">
+            <div class="header-flex">
+                <h2>Latest News</h2>
+                <button class="add-btn" onclick="openNewsModal()">+ Create News</button>
+            </div>
+
+            <div class="news-grid">
+                <article class="news-item">
+                    <img src="event.jpg" alt="News">
+                    <div class="news-text">
+                        <h4>Beach Cleanup 2024</h4>
+                        <p style="font-size: 13px; color: #aaa;">24 Dec 2024</p>
+                    </div>
+                    <div class="news-actions">
+                        <button style="color:#00d1ff; background:none; border:none; cursor:pointer;" onclick="openNewsModal()">Edit</button>
+                        <button style="color:#ff4d4d; background:none; border:none; cursor:pointer;">Delete</button>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </div>
+
+    <div id="newsModal">
+        <div class="modal-box">
+            <h3>Add News Update</h3>
+            <input type="text" placeholder="Title">
+            <input type="date">
+            <input type="file">
+            <textarea rows="4" placeholder="Description"></textarea>
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button class="add-btn" style="flex:1" onclick="closeNewsModal()">Publish</button>
+                <button class="add-btn" style="flex:1; background:#444" onclick="closeNewsModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openNewsModal() { document.getElementById('newsModal').style.display = 'flex'; }
+        function closeNewsModal() { document.getElementById('newsModal').style.display = 'none'; }
+    </script>
+</body>
+</html>
