@@ -159,36 +159,36 @@
       const SUPABASE_URL = 'https://lgbgobzasuqozdkvxifk.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxnYmdvYnphc3Vxb3pka3Z4aWZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0ODg3OTcsImV4cCI6MjA4NDA2NDc5N30.a64sYwLUfGd1qNqg9Vfon_DqvrntkMiB1v-l6tPoITM';
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-   
 
-    // 2. Update Event Function
-    async function updateEvent() {
-        const newEvent = document.getElementById('event-input').value;
-        if(!newEvent) return alert("Please enter an event name");
 
-        // Logic to update the settings table (where id=1 holds the event name)
-        const { error } = await _supabase
-            .from('settings')
-            .update({event_name: newEvent })
-            .eq('id', 1);
+    
+   async function updateEvent() {
+    const newEvent = document.getElementById('event-input').value;
+    if(!newEvent) return alert("Please enter an event name");
 
-        if (error) {
-            console.error(error);
-            alert("Error updating event.");
-        } else {
-            alert("Event updated successfully!");
-            document.getElementById('event-input').value = "";
-        }
+    // UPDATED: Using 'event_name' as requested
+    const { error } = await _supabase
+        .from('settings')
+        .update({ event_name: newEvent }) 
+        .eq('id', 1);
+
+    if (error) {
+        alert("Error: " + error.message);
+    } else {
+        alert("Event updated successfully!");
+        document.getElementById('event-input').value = "";
     }
+}
 
-    // 3. Download Excel Function
-   async function downloadExcel() {
-    const { date, error } = await _supabase
+  
+
+async function downloadExcel() {
+    const { data, error } = await _supabase
         .from('attendance')
-        .select('student_name, id, position, event_name, date ');
+        .select('student_name, id, event_name, date, position');
 
-    if (error || !date) return alert("Error fetching data");
-    if (date.length === 0) return alert("No records found.");
+    if (error || !data) return alert("Error fetching data");
+    if (data.length === 0) return alert("No records found.");
 
     // 1. Create the worksheet from JSON
     const worksheet = XLSX.utils.json_to_sheet(data);
@@ -209,11 +209,12 @@
     XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance");
 
     // 4. Trigger download
-    XLSX.writeFile(workbook, "NVC Attendance Report.xlsx");
+    XLSX.writeFile(workbook, "NVC_Attendance_Report.xlsx");
 }
 </script>
 </body>
 </html>
+
 
 
 
