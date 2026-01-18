@@ -54,24 +54,25 @@
     </div>
 
 <script>
-    function updateEvent() {
-    const newEvent = document.getElementById('event-input').value; // Get text from box
-    if(!newEvent) return alert("Please enter an event name");
+    async function updateEvent() {
+    const newEventName = document.getElementById('event-input').value;
+    if(!newEventName) return alert("Please enter an event name");
 
-    fetch('http://localhost:3000/update-event', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        // ERROR WAS HERE: key must be 'newEvent' to match server.js
-        body: JSON.stringify({ newEvent: newEvent }) 
-    })
-    .then(res => res.json())
-    .then(data => {
+    // This updates the 'current_event' row in the settings table
+    const { data, error } = await supabase
+        .from('settings')
+        .update({ value: newEventName })
+        .eq('key', 'current_event');
+
+    if (error) {
+        alert("Error updating event: " + error.message);
+    } else {
         alert("Event updated successfully!");
-        document.getElementById('event-input').value = ""; // Clear box
-    })
-    .catch(err => alert("Error updating event"));
+        document.getElementById('event-input').value = "";
+    }
 }
 </script>
    
 </body>
+
 </html>
