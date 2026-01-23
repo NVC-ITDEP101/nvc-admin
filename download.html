@@ -185,7 +185,7 @@
         <div class="content-area">
             <div class="glass-card">
                 <h2>Manage Current Event</h2>
-                <p>Changing this name will instantly update the title on the registration form.</p>
+                <p>Change current event.</p>
                 <div class="input-group">
                     <input type="text" id="event-input" placeholder=" Siyapathsiya Udanaya 2026">
                     <button onclick="updateEvent()" class="btn">Save Event</button>
@@ -194,7 +194,7 @@
 
             <div class="glass-card">
                 <h1>Attendance Records</h1>
-                <p>Generate a professional Excel report of all students who have registered through the portal.</p>
+                <p>Generate an Excel report <br>(<p style="color=#ff0000">Note</p>:-The Database resets after 00.00.Please generate the report before 00.00)</p>
                 <button onclick="downloadExcel()" class="btn btn-secondary">
                     Download .XLSX Sheet
                 </button>
@@ -265,6 +265,7 @@ async function downloadExcel() {
 </script>
 </body>
 </html>
+
 
 
 
