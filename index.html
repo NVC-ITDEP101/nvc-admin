@@ -3,6 +3,7 @@
 <head>
     <title>News & Updates</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* Reusing your CSS logic for consistency */
         * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
@@ -118,7 +119,7 @@
             <input type="file">
             <textarea rows="4" placeholder="Description"></textarea>
             <div style="display:flex; gap:10px; margin-top:20px;">
-                <button class="add-btn" style="flex:1" onclick="closeNewsModal()">Publish</button>
+                <button class="add-btn" style="flex:1" onclick="publishNews()">Publish</button>
                 <button class="add-btn" style="flex:1; background:#444" onclick="closeNewsModal()">Cancel</button>
             </div>
         </div>
@@ -127,9 +128,6 @@
    
 
 
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-       
 
 <script>
     // Existing UI Functions
@@ -219,4 +217,5 @@ window.onload = loadAdminNews;
 </body>
 
 </html>
+
 
