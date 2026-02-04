@@ -167,14 +167,16 @@ async function publishNews() {
             .getPublicUrl(fileName);
 
         // 3. Insert record into the 'news' table
-        const { error: insertError } = await _supabase.from('news').insert([
-            { 
-                title: title, 
-                date: dateValue, // Ensure your DB column is 'date'
-                description: description, 
-                image_url: publicUrl 
-            }
-        ]);
+       const { error: insertError } = await _supabase
+    .from('news')
+    .insert([
+        { 
+            title: title, 
+            date: dateValue, 
+            description: description, 
+            image_url: publicUrl 
+        }
+    ], { returning: 'minimal' }); // This prevents the immediate "re-read"
 
         if (insertError) throw insertError;
 
@@ -227,5 +229,6 @@ window.onload = loadAdminNews;
     
 </body>
 </html>
+
 
 
