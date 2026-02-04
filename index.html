@@ -127,6 +127,81 @@
     <script>
         function openNewsModal() { document.getElementById('newsModal').style.display = 'flex'; }
         function closeNewsModal() { document.getElementById('newsModal').style.display = 'none'; }
+
+
+
+
+
+        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+    // Initialize Supabase
+    const _supabase = supabase.createClient('YOUR_SUPABASE_URL', 'YOUR_SUPABASE_ANON_KEY');
+
+    // Function to Publish News
+    async function publishNews() {
+        const title = document.querySelector('#newsModal input[type="text"]').value;
+        const date = document.querySelector('#newsModal input[type="date"]').value;
+        const description = document.querySelector('#newsModal textarea').value;
+        const fileInput = document.querySelector('#newsModal input[type="file"]');
+        
+        if (!title || !date || !description || !fileInput.files[0]) {
+            alert("Please fill all fields and select an image.");
+            return;
+        }
+
+        const file = fileInput.files[0];
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `news-images/${fileName}`;
+
+        // 1. Upload Image to Supabase Storage
+        let { error: uploadError } = await _supabase.storage
+            .from('news-bucket')
+            .upload(filePath, file);
+
+        if (uploadError) return console.error(uploadError);
+
+        // 2. Get Public URL
+        const { data: { publicUrl } } = _supabase.storage.from('news-bucket').getPublicUrl(filePath);
+
+        // 3. Insert into Database
+        const { error: insertError } = await _supabase.from('news').insert([
+            { title, date, description, image_url: publicUrl }
+        ]);
+
+        if (!insertError) {
+            closeNewsModal();
+            loadAdminNews(); // Refresh the grid
+        }
+    }
+
+    // Function to load and display news in Admin Grid
+    async function loadAdminNews() {
+        const { data: news, error } = await _supabase.from('news').select('*').order('created_at', { ascending: false });
+        const grid = document.getElementById('news-grid-admin'); // Ensure this ID exists in your index.html
+        grid.innerHTML = '';
+
+        news.forEach(item => {
+            grid.innerHTML += `
+                <article class="news-item">
+                    <img src="${item.image_url}" alt="News">
+                    <div class="news-text">
+                        <h4>${item.title}</h4>
+                        <p style="font-size: 13px; color: #aaa;">${item.date}</p>
+                    </div>
+                    <div class="news-actions">
+                        <button onclick="deleteNews(${item.id})" style="color:#ff4d4d; background:none; border:none; cursor:pointer;">Delete</button>
+                    </div>
+                </article>`;
+        });
+    }
+
+    // Attach publishNews() to your Publish button
+    document.querySelector('.add-btn').onclick = publishNews;
+    window.onload = loadAdminNews;
+</script>
     </script>
 </body>
+
 </html>
