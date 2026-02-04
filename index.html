@@ -138,16 +138,15 @@ const _supabase = supabase.createClient('https://lgbgobzasuqozdkvxifk.supabase.c
 
 // Function to Publish News
 async function publishNews() {
-    // Better targeting of inputs to ensure we get the right data
     const modal = document.getElementById('newsModal');
-    const title = modal.querySelector('input[type="text"]').value;
-    const dateValue = modal.querySelector('input[type="date"]').value;
-    const description = modal.querySelector('textarea').value;
+    const titleInput = modal.querySelector('input[type="text"]');
+    const dateInput = modal.querySelector('input[type="date"]');
+    const descInput = modal.querySelector('textarea');
     const fileInput = modal.querySelector('input[type="file"]');
+    
     const file = fileInput.files[0];
 
-    // Check if essential data is missing
-    if (!title || !file) {
+    if (!titleInput.value || !file) {
         alert("Please provide at least a title and an image.");
         return;
     }
@@ -167,28 +166,42 @@ async function publishNews() {
             .getPublicUrl(fileName);
 
         // 3. Insert record into the 'news' table
-       const { error: insertError } = await _supabase
-    .from('news')
-    .insert([
-        { 
-            title: title, 
-            date: dateValue, 
-            description: description, 
-            image_url: publicUrl 
-        }
-    ], { returning: 'minimal' }); // This prevents the immediate "re-read"
+        const { error: insertError } = await _supabase
+            .from('news')
+            .insert([
+                { 
+                    title: titleInput.value, 
+                    date: dateInput.value, 
+                    description: descInput.value, 
+                    image_url: publicUrl 
+                }
+            ], { returning: 'minimal' });
 
         if (insertError) throw insertError;
 
+        // --- NEW RESET LOGIC ---
+        // 4. Empty all boxes
+        titleInput.value = '';
+        dateInput.value = '';
+        descInput.value = '';
+        fileInput.value = ''; // Clears the selected file
+
+        // 5. Close the window
         alert("News Published Successfully!");
         closeNewsModal();
-        loadAdminNews(); // Refresh the list automatically
+        loadAdminNews(); 
         
     } catch (err) {
         console.error("Operation failed:", err.message);
         alert("Error: " + err.message);
     }
 }
+
+
+
+
+
+            
 
 // Function to load and display news in Admin Grid
 async function loadAdminNews() {
@@ -265,6 +278,7 @@ window.onload = loadAdminNews;
     
 </body>
 </html>
+
 
 
 
