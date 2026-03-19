@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        
+        body { 
+            margin: 0; 
+            background: linear-gradient(135deg, #1f1f1f, #0a6a7c, #000000); 
+            background-attachment: fixed;
+            color: white; 
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .main-layout { display: flex; height: 100vh; }
+
+        /* Sidebar Navigation */
+        nav { 
+            width: 20%; 
+            background-color: rgba(0, 0, 0, 0.4); 
+            backdrop-filter: blur(15px);
+            height: 100%; 
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .logo { text-align: center; padding: 40px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .logo h1 { font-size: 1.5rem; letter-spacing: 2px; color: #00d4ff; }
+
+        nav a { 
+            display: block; 
+            text-decoration: none; 
+            padding: 20px 30px; 
+            color: rgba(255, 255, 255, 0.7); 
+            transition: 0.3s; 
+            font-size: 0.9rem;
+            border-left: 3px solid transparent;
+        }
+        
+        nav a:hover, .active { 
+            background-color: rgba(0, 212, 255, 0.1); 
+            color: #00d4ff;
+            border-left: 3px solid #00d4ff;
+        }
+
+        /* Content Area */
+        .content-area { 
+            width: 80%; 
+            padding: 60px; 
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            overflow-y: auto;
+        }
+
+        /* Glass Cards */
+        .glass-card { 
+            background: rgba(255, 255, 255, 0.05); 
+            backdrop-filter: blur(20px);
+            padding: 40px; 
+            border-radius: 20px; 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+        .glass-card:nth-of-type(2) {
+            position: relative; /* Required for z-index to work */
+            z-index: 100;       /* High number to stay on top */
+        }
+
+        /* 3. The 3rd Card: Force it to be on a LOWER layer */
+        .glass-card:nth-of-type(3) {
+            position: relative;
+            z-index: 1;         /* Lower number to stay underneath */
+        }
+
+        h2, h1 { margin-top: 0; font-weight: 300; }
+
+        /* Form Elements */
+        .input-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        input[type="text"] {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            color: white;
+            width: 100%;
+            max-width: 400px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input[type="text"]:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #00d4ff;
+        }
+
+        .btn { 
+            background: #00d4ff; 
+            color: #002b36; 
+            padding: 15px 35px; 
+            border-radius: 10px; 
+            text-decoration: none; 
+            font-weight: bold; 
+            border: none;
+            cursor: pointer;
+            transition: 0.3s ease;
+            display: inline-block;
+        }
+
+        .btn:hover { 
+            background: white; 
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            margin-top: 20px;
+        }
+
+        /* Container for the search bar to anchor the results */
+        .search-wrapper {
+            position: relative; 
+            width: 100%;
+           
+            margin: 0 auto;
+            z-index: 100; /* Higher than the cards below it */
+        }
+
+        /* The actual results dropdown */
+        #search-results {
+            position: absolute;
+            margin: 0 auto;
+            top: 100%; 
+            right: 40%;
+            width: 38%;
+            background:rgba(255, 255, 255, 0.05);  /* Solid background so you can't see the card behind it */
+            backdrop-filter: blur(20px);
+            border-radius: 0 0 15px 15px;
+           
+            overflow-y: auto;
+            z-index: 999; /* Highest priority */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: none;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+        }
+
+        .search-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: background 0.2s;
+        }
+
+        .search-item:hover {
+            background: rgba(0, 212, 255, 0.2);
+        }
+
+
+
+
+
+#student-attendance-body tr {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: background 0.3s;
+}
+
+#student-attendance-body tr:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+#student-attendance-body td {
+    padding: 12px;
+    font-size: 0.9rem;
+}
+
+
+/* Ensure the QR container looks professional and high-contrast */
+#qrcode {
+    background: white; /* Essential for black and white QR scanning */
+    padding: 20px;
+    border-radius: 15px;
+    display: inline-block; /* Wraps tightly around the QR */
+    margin: 20px auto;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+#qrcode canvas, #qrcode img {
+    display: block;
+    margin: 0 auto;
+}
+       
+
+
+
+
+
+
+        p { color: rgba(255, 255, 255, 0.6); line-height: 1.6; }
+        @media (max-width: 768px) {
+            .main-layout { 
+                flex-direction:row;
+                width: 100%;
+                
+               
+             }
+           
+            nav a{
+                font-size: 12px;
+            }
+            nav { 
+                width: 145px;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+            .content-area { width: 100%; padding: 1px; }
+            .glass-card{
+                width: 100%;
+                height: auto;
+                padding: 15px;
+                font-size: 10px;
+                margin: 0 auto;
+                margin-top: 20px;
+            }
+            
+            .input-group{
+                flex-direction: column;
+                gap: 10px;
+                  width: 170px;
+                  margin: 0 auto;
+            }
+            #event-input{
+                width: 100%;
+                font-size: 9px;
+                padding: 8px;
+            }
+            button{
+               width: 100%;
+                font-size: 9px;
+            }
+            #h-1{
+                font-size:18px ;
+            }
+
+             
+            
+        }
+    </style>
+</head>
+<body>
+    <div class="main-layout">
+        <nav>
+            <div class="logo"><h1 id="h-1">NVC ADMIN</h1></div>
+            <a href="index.html">News and Updates</a>
+            <a href="members.html" >Members</a>
+            <a href="gallery.html">Gallery</a> 
+            <a href="download.html">Attendance</a> 
+            <a href="event.html">Events</a>
+        </nav>
+        
+        <div class="content-area">
+            <div class="glass-card">
+                <h2>Manage Current Event</h2>
+                <p>Changing this name will instantly update the title on the registration form.</p>
+                <div class="input-group">
+                    <input type="text" id="event-input" placeholder=" Siyapathsiya Udanaya 2026">
+                    <button onclick="updateEvent()" class="btn">Save Event</button>
+                </div>
+            </div>
+
+           <div class="glass-card">
+                <h2>Attendance Records</h2>
+                <p>Search for an event name to download the specific attendance sheet.</p>
+                
+                <div class="search-wrapper">
+                    <div class="input-group">
+                        <input type="text" id="event-search" placeholder="Search event..." oninput="searchEvents()" autocomplete="off">
+                        <button onclick="downloadFilteredExcel()" class="btn">Download .XLSX</button>
+                    </div>
+                    
+                    <div id="search-results" style="color: #000000;"></div>
+                </div>
+            </div>
+
+           <div class="glass-card" style="text-align: center;">
+                <h2>Daily Attendance QR</h2>
+                <p>Scan this to access today's form.</p>
+                <div id="qrcode" style="display: flex; justify-content: center; margin: 20px 0;"></div>
+                
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <button onclick="generateQR()" class="btn">Refresh QR</button>
+                    <button onclick="downloadQR()" class="btn" style="background: #fff; color: #000;">Download Image</button>
+                </div>
+            </div>
+
+
+            <div class="glass-card">
+                <h2>Student Attendance Search</h2>
+                <p>Search for a specific student to see their full participation history.</p>
+                
+                <div class="input-group">
+                    <input type="text" id="student-search-input" placeholder="Enter Student Name or ID...">
+                    <button onclick="searchStudentAttendance()" class="btn">Search Student</button>
+                </div>
+
+                <div id="student-table-container" style="margin-top: 30px; display: none; overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; color: white; text-align: left;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid #00d4ff; color: #00d4ff;">
+                                <th style="padding: 12px;">Student Name</th>
+                                <th style="padding: 12px;">ID</th>
+                                <th style="padding: 12px;">Event Name</th>
+                                <th style="padding: 12px;">Event Date</th>
+                                <th style="padding: 12px;">Position</th>
+                            </tr>
+                        </thead>
+                        <tbody id="student-attendance-body">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    const SUPABASE_URL = 'https://lgbgobzasuqozdkvxifk.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxnYmdvYnphc3Vxb3pka3Z4aWZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0ODg3OTcsImV4cCI6MjA4NDA2NDc5N30.a64sYwLUfGd1qNqg9Vfon_DqvrntkMiB1v-l6tPoITM';
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// updateEvent() function
+ async function updateEvent() {
+    const newEvent = document.getElementById('event-input').value;
+    if(!newEvent) return alert("Please enter an event name");
+
+    // The 'count' option tells us if a row was actually changed
+    const { error, count } = await _supabase
+        .from('settings')
+        .update({ event_name: newEvent }) 
+        .eq('id', 1)
+        .select(); // Adding select() helps confirm the data was written
+
+    if (error) {
+        alert("Error: " + error.message);
+    } else if (count === 0) {
+        alert("Error: No row found with ID 1. Please create a row in Supabase first!");
+    } else {
+        alert("Event updated successfully in the database!");
+        document.getElementById('event-input').value = "";
+    }
+}
+
+  
+
+
+async function searchEvents() {
+    const query = document.getElementById('event-search').value.trim();
+    const resultsContainer = document.getElementById('search-results');
+    
+    // If search box is empty, clear results and stop
+    if (!query) {
+        resultsContainer.innerHTML = '';
+        return;
+    }
+
+    const { data, error } = await _supabase
+        .from('attendance')
+        .select('event_name')
+        .ilike('event_name', `%${query}%`);
+
+    if (data) {
+        const uniqueEvents = [...new Set(data.map(item => item.event_name))];
+        
+        // If no results found, clear the container
+        if (uniqueEvents.length === 0) {
+            resultsContainer.innerHTML = '';
+            return;
+        }
+
+        resultsContainer.innerHTML = uniqueEvents.map(name => `
+            <div class="search-item" onclick="selectEvent('${name}')">
+                ${name}
+            </div>
+        `).join('');
+    }
+}
+function selectEvent(name) {
+    document.getElementById('event-search').value = name;
+    document.getElementById('search-results').innerHTML = '';
+}
+
+
+function selectEvent(name) {
+    document.getElementById('event-search').value = name;
+    // Immediately clear and hide the results so the 3rd card is visible again
+    document.getElementById('search-results').innerHTML = ''; 
+}
+
+// Also, add a listener to close the results if the user clicks anywhere else
+document.addEventListener('click', function(e) {
+    const results = document.getElementById('search-results');
+    const searchInput = document.getElementById('event-search');
+    if (e.target !== results && e.target !== searchInput) {
+        results.innerHTML = '';
+    }
+});
+// 3. Download Function: Only downloads students for the selected event
+async function downloadFilteredExcel() {
+    const selectedEvent = document.getElementById('event-search').value;
+    
+    if (!selectedEvent) return alert("Please select or enter an event name first.");
+
+    const { data, error } = await _supabase
+        .from('attendance')
+        .select('student_name, id, event_name, date, position')
+        .eq('event_name', selectedEvent); // Filtered by the specific event
+
+    if (error || !data || data.length === 0) {
+        return alert("No records found for: " + selectedEvent);
+    }
+
+    // Create Excel file
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const colWidths = [
+        { wch: 25 }, { wch: 10 }, { wch: 30 }, { wch: 15 }, { wch: 20 }
+    ];
+    worksheet['!cols'] = colWidths;
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance");
+
+    // File name includes the event name
+    XLSX.writeFile(workbook, `Attendance_${selectedEvent.replace(/\s+/g, '_')}.xlsx`);
+}
+
+
+async function searchStudentAttendance() {
+    const query = document.getElementById('student-search-input').value.trim();
+    const tableContainer = document.getElementById('student-table-container');
+    const tableBody = document.getElementById('student-attendance-body');
+
+    if (!query) {
+        alert("Please enter a name or ID to search.");
+        return;
+    }
+
+    // Search for the student in both 'student_name' and 'id' columns
+    const { data, error } = await _supabase
+        .from('attendance')
+        .select('student_name, id, event_name, date, position')
+        .or(`student_name.ilike.%${query}%,id.eq.${query}`);
+
+    if (error) {
+        console.error("Search error:", error);
+        alert("Error fetching student records.");
+        return;
+    }
+
+    if (!data || data.length === 0) {
+        alert("No records found for this student.");
+        tableContainer.style.display = 'none';
+        return;
+    }
+
+    // Clear previous results and inject new data
+    tableBody.innerHTML = '';
+    data.forEach(record => {
+        const row = `
+            <tr>
+                <td>${record.student_name}</td>
+                <td>${record.id}</td>
+                <td>${record.event_name}</td>
+                <td>${record.date}</td>
+                <td>${record.position}</td>
+            </tr>
+        `;
+        tableBody.innerHTML += row;
+    });
+
+    // Show the table
+    tableContainer.style.display = 'block';
+}
+
+function generateQR() {
+    const qrContainer = document.getElementById("qrcode");
+    qrContainer.innerHTML = ""; // Clear old QR content
+    
+    // 1. Get today's date for the daily token (YYYY-MM-DD)
+    const today = new Date().toISOString().split('T')[0];
+    
+    // 2. HARDCODE the Form URL because it is on a different site
+    const formBaseURL = "https://nvc-itdep101.github.io/nvc-attendance/";
+    const attendanceURL = `${formBaseURL}?token=${today}`;
+
+    console.log("Generated Link:", attendanceURL); // For debugging in browser console
+
+    // 3. Generate the Large Black & White QR
+    new QRCode(qrContainer, {
+        text: attendanceURL,
+        width: 300,            
+        height: 300,           
+        colorDark: "#000000",  
+        colorLight: "#ffffff", 
+        correctLevel: QRCode.CorrectLevel.H 
+    });
+}
+
+function downloadQR() {
+    // 1. Find the image or canvas inside the qrcode div
+    const qrCanvas = document.querySelector('#qrcode canvas');
+    const qrImage = document.querySelector('#qrcode img');
+    
+    let imageSource;
+    
+    if (qrCanvas) {
+        imageSource = qrCanvas.toDataURL("image/png");
+    } else if (qrImage) {
+        imageSource = qrImage.src;
+    } else {
+        return alert("Please generate a QR code first!");
+    }
+
+    // 2. Create a temporary "anchor" element to trigger download
+    const today = new Date().toISOString().split('T')[0];
+    const link = document.createElement('a');
+    link.href = imageSource;
+    link.download = `NVC_Attendance_QR_${today}.png`;
+    
+    // 3. Trigger the click and remove the element
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Use addEventListener instead of window.onload to avoid conflicts
+document.addEventListener('DOMContentLoaded', function() {
+    generateQR();
+});
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
