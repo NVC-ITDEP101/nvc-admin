@@ -502,7 +502,7 @@ function generateQR() {
     
     // 2. Build the link specifically to index.html
     // We use window.location.origin to get the base domain, then append /index.html
-    const attendanceURL = window.location.origin + window.location.pathname.replace('download.html', 'index.html') + `?token=${today}`;
+    const attendanceURL = window.location.origin + window.location.pathname.replace('https://nvc-itdep101.github.io/nvc-admin/download.html', 'https://nvc-itdep101.github.io/nvc-attendance/') + `?token=${today}`;
 
     // 3. Generate the Large Black & White QR
     new QRCode(qrContainer, {
